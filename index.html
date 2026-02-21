@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para mi florecita</title>
+    <style>
+        :root {
+            --color-bg: #000000;
+            --color-envelope: #ffb3c1;
+            --color-letter: #ffffff;
+            --color-text: #fb6f92;
+            --color-heart: #ff4d6d;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--color-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            /* Evita que se haga zoom al tocar rápido en móvil */
+            touch-action: manipulation;
+        }
+
+        .bg-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            cursor: pointer;
+            transform: translateY(50px);
+            transition: transform 0.3s;
+        }
+
+        .envelope {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background: var(--color-envelope);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            box-shadow: 0 10px 30px rgba(255,179,193,0.3);
+        }
+
+        .envelope::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            z-index: 2;
+            border-top: 110px solid var(--color-heart);
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            transform-origin: top;
+            transition: transform 0.5s ease;
+        }
+
+        .envelope::after {
+            content: "";
+            position: absolute;
+            z-index: 3;
+            width: 0;
+            height: 0;
+            border-top: 100px solid transparent;
+            border-right: 150px solid #ffc2d1;
+            border-bottom: 100px solid #ffc2d1;
+            border-left: 150px solid #ff85a1;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .letter {
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            width: 280px;
+            height: 180px;
+            background: var(--color-letter);
+            z-index: 1;
+            transition: transform 0.7s ease-in-out, height 0.7s ease-in-out;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            border-radius: 5px;
+            color: var(--color-text);
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Estado Abierto (Permanente) */
+        .envelope-wrapper.open .envelope::before {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+
+        .envelope-wrapper.open .letter {
+            transform: translateY(-190px);
+            z-index: 2;
+            height: 260px;
+        }
+
+        .letter h1 { font-size: 1.2rem; margin-bottom: 5px; }
+        .letter p { font-size: 0.85rem; line-height: 1.4; margin: 0; }
+
+        .letter-gif {
+            width: 70px;
+            height: auto;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .envelope-wrapper.open .letter-gif { opacity: 1; }
+
+        .letter strong {
+            transition: opacity 0.3s ease;
+            display: block;
+            margin-top: 15px;
+        }
+
+        .envelope-wrapper.open .letter strong {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .heart-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            font-size: 40px;
+            color: white;
+            transition: opacity 0.3s;
+        }
+
+        .envelope-wrapper.open .heart-icon { opacity: 0; }
+
+        .floating-heart {
+            position: absolute;
+            color: var(--color-heart);
+            font-size: 20px;
+            animation: float 4s linear infinite;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-hearts" id="hearts-container"></div>
+
+    <audio id="miMusica" loop playsinline preload="auto">
+        <source src="kris_piano_shop.ogg" type="audio/ogg">
+    </audio>
+
+    <div class="envelope-wrapper" id="envelope" onclick="openLetter()">
+        <div class="heart-icon">❤️</div>
+        <div class="envelope"></div>
+        <div class="letter">
+            <h1>Para Magaly</h1>
+            <p>
+                Eres mi florecita hermosa, la luz que ilumina mis días y la razón de mi sonrisa. 
+                Cada momento contigo es un regalo que atesoro a pesar de lo que pase.
+            </p>
+            <img src="krusie.gif" alt="Gatito tierno" class="letter-gif">
+            <p>
+                <strong>Presiona la carta :3</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('miMusica');
+        const envelope = document.getElementById('envelope');
+        let isOpen = false;
+
+        // Pitch de 0.8
+        audio.playbackRate = 0.7;
+
+        function openLetter() {
+            if (!isOpen) {
+                // Forzar carga de audio para móviles
+                audio.load();
+                
+                // Abrir la carta
+                envelope.classList.add('open');
+                
+                // Intentar reproducir música
+                audio.play().catch(e => {
+                    console.log("Audio play falló, reintentando...");
+                    // Reintento manual por si el navegador es estricto
+                    document.addEventListener('touchstart', () => {
+                        audio.play();
+                    }, { once: true });
+                });
+                
+                // Iniciar corazones
+                setInterval(createHeart, 300);
+                
+                isOpen = true;
+            }
+        }
+
+        function createHeart() {
+            const container = document.getElementById('hearts-container');
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            container.appendChild(heart);
+
+            setTimeout(() => { heart.remove(); }, 5000);
+        }
+    </script>
+</body>
+</html>
